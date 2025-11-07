@@ -63,6 +63,7 @@ public static class Program
             new Light(),
             new Corpse(),
             new Delirium(),
+            new Particles(),
         };
     }
 

@@ -35,7 +35,8 @@ public class EnvironmentParticles : IPatch
                     data = data.Replace("\"area\"", "\"xrea\"")
                         .Replace("\"fog\"", "\"xog\"")
                         .Replace("\"screenspace_fog\"", "\"xcreenspace_fog\"")
-                        .Replace("\"effect_spawner\"", "\"xffect_spawner\"");
+                        .Replace("\"effect_spawner\"", "\"xffect_spawner\"")
+                        .Replace("\"post_processing\"", "\"xost_processing\"");
 
                     var newBytes = System.Text.Encoding.Unicode.GetBytes(data);
                     record.Write(newBytes);

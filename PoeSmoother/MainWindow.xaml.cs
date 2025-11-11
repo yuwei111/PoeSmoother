@@ -23,7 +23,6 @@ public partial class MainWindow : Window
 
         _patches = new ObservableCollection<PatchViewModel>();
         InitializeComponent();
-        InitializePatches();
         PatchesItemsControl.ItemsSource = _patches;
         UpdateStatus();
 
@@ -47,14 +46,14 @@ public partial class MainWindow : Window
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
-    private void InitializePatches()
+    private void InitializePoe1Patches()
     {
         var patchInstances = new IPatch[]
         {
             new Camera(),
+            new Minimap(),
             new Fog(),
             new EnvironmentParticles(),
-            new Minimap(),
             new Shadow(),
             new Light(),
             new Corpse(),
@@ -65,6 +64,58 @@ public partial class MainWindow : Window
         foreach (var patch in patchInstances)
         {
             _patches.Add(new PatchViewModel(patch));
+        }
+    }
+
+    private void InitializePoe2Patches()
+    {
+        var patchInstances = new IPatch[]
+        {
+            new Camera(),
+            new Minimap(),
+            new AtlasFog(),
+            new Fog(),
+            new Rain(),
+            new Clouds(),
+            new EnvironmentParticles2(),
+            new Shadow(),
+            new Light(),
+            new Delirium(),
+
+        };
+
+        foreach (var patch in patchInstances)
+        {
+            _patches.Add(new PatchViewModel(patch));
+        }
+    }
+
+    private void GameSelector_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (_patches == null) return;
+
+        var selectedIndex = ((System.Windows.Controls.ComboBox)sender).SelectedIndex;
+
+        _patches.Clear();
+
+        if (selectedIndex == 0) // PoE 1
+        {
+            InitializePoe1Patches();
+        }
+        else if (selectedIndex == 1) // PoE 2
+        {
+            InitializePoe2Patches();
+        }
+
+        if (ZoomSlider != null)
+        {
+            foreach (var patch in _patches)
+            {
+                if (patch.Patch is Camera cameraPatch)
+                {
+                    cameraPatch.ZoomLevel = ZoomSlider.Value;
+                }
+            }
         }
     }
 
@@ -158,14 +209,16 @@ public partial class MainWindow : Window
             {
                 if (_ggpkPath.EndsWith(".bin", StringComparison.OrdinalIgnoreCase))
                 {
-                    var index = new LibBundle3.Index(_ggpkPath);
+                    var index = new LibBundle3.Index(_ggpkPath, false);
+                    index.ParsePaths();
                     PatchIndex(index, patchesToApply);
                     index.Dispose();
                 }
                 else if (_ggpkPath.EndsWith(".ggpk", StringComparison.OrdinalIgnoreCase))
                 {
-                    BundledGGPK ggpk = new(_ggpkPath);
+                    BundledGGPK ggpk = new(_ggpkPath, false);
                     var index = ggpk.Index;
+                    index.ParsePaths();
                     PatchIndex(index, patchesToApply);
                     ggpk.Dispose();
                 }
@@ -197,7 +250,7 @@ public partial class MainWindow : Window
 
     private void PatchIndex(LibBundle3.Index index, List<PatchViewModel> patches)
     {
-        var fileTree = index.BuildTree();
+        var fileTree = index.BuildTree(true);
 
         for (int i = 0; i < patches.Count; i++)
         {

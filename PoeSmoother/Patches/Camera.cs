@@ -23,6 +23,7 @@ public class Camera : IPatch
         "ClearCameraZoomNodes",
         "CreateCameraLookAtNode",
         "CreateCameraPanNode",
+        "ClearCameraPanNode",
         "SetCustomCameraSpeed",
         "RemoveCustomCameraSpeed",
     };
@@ -56,7 +57,7 @@ public class Camera : IPatch
 
                     List<string> lines = data.Split("\r\n").ToList();
 
-                    for (int i = lines.Count - 1; i >= 0; i--)
+                    for (int i = 0; i < lines.Count; i++)
                     {
                         string? foundFunction = _functions.FirstOrDefault(func => lines[i].Contains(func));
 
@@ -64,6 +65,16 @@ public class Camera : IPatch
                         {
                             int start = lines[i].IndexOf(foundFunction);
                             int end = lines[i].IndexOf(';', start);
+
+                            if (start - 1 > 0 && lines[i][start - 1] == '.')
+                            {
+                                start -= 1;
+                                while (start - 1 > 0 && (char.IsLetterOrDigit(lines[i][start - 1]) || lines[i][start - 1] == '_'))
+                                {
+                                    start -= 1;
+                                }
+                            }
+
                             if (end >= 0)
                             {
                                 lines[i] = lines[i][..start] + lines[i][(end + 1)..];

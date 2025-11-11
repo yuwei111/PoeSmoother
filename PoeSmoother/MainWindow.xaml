@@ -17,12 +17,37 @@
         </Grid.RowDefinitions>
 
         <!-- Title -->
-        <TextBlock Grid.Row="0" 
-                   Text="PoE Smoother" 
-                   FontSize="20" 
-                   FontWeight="Bold" 
-                   Margin="0,0,0,15"
-                   Foreground="#E0E0E0"/>
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0"
+                       Text="PoE Smoother" 
+                       FontSize="20" 
+                       FontWeight="Bold" 
+                       VerticalAlignment="Center"
+                       Foreground="#E0E0E0"/>
+            
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Game:" 
+                           VerticalAlignment="Center" 
+                           Margin="0,0,8,0"
+                           FontSize="12"
+                           Foreground="#B0B0B0"/>
+                <ComboBox x:Name="GameSelector"
+                          Width="80"
+                          FontSize="12"
+                          Style="{StaticResource DarkComboBox}"
+                          SelectedIndex="0"
+                          SelectionChanged="GameSelector_SelectionChanged">
+                    <ComboBoxItem Content="PoE 1"/>
+                    <ComboBoxItem Content="PoE 2"/>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
 
         <!-- GGPK Path Selection -->
         <GroupBox Grid.Row="1" Header="GGPK File Path" Margin="0,0,0,8" FontSize="12">

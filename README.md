@@ -33,15 +33,6 @@
 - **Particles Patch**
   - General particle effect optimizations
 
-### Interface Features
-
-- Dark theme with modern UI
-- Real-time progress tracking
-- Batch patch application
-- Select all/none shortcuts
-- Customizable camera zoom via slider
-- Detailed patch descriptions
-
 ## Installation
 
 1. Go to the [Releases page](https://github.com/Gineticus/PoeSmoother/releases)

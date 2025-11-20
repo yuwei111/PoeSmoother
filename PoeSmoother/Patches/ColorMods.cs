@@ -29,6 +29,8 @@ public class ColorMods : IPatch
         new ColorModsOption("map_boss_additional_divine_orb_to_drop", "yellow", true),
         new ColorModsOption("%_chance_to_duplicate_dropped_currency", "blue", true),
         new ColorModsOption("%_chance_to_duplicate_dropped_divination_cards", "blue", true),
+        new ColorModsOption("%_chance_to_duplicate_dropped_scarabs", "blue", true),
+        new ColorModsOption("%_chance_to_duplicate_dropped_uniques", "blue", true),
     };
 
     private readonly Dictionary<string, string> _color_conversions = new()

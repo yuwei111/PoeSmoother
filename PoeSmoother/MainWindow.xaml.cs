@@ -219,6 +219,8 @@ public partial class MainWindow : Window
             return;
         }
 
+        StatusTextBlock.Text = "Starting patching process...";
+
         // Disable buttons during operation
         ApplyButton.IsEnabled = false;
         //ZoomSlider.IsEnabled = false;

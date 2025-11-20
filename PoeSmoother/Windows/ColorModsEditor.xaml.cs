@@ -106,7 +106,7 @@ public partial class ColorModsEditor : Window
                         if (colorModsDict.TryGetValue(mod.Name, out var modData))
                         {
                             if (modData.TryGetValue("enabled", out var enabledObj) 
-                                && enabledObj.ValueKind == System.Text.Json.JsonValueKind.True || enabledObj.ValueKind == System.Text.Json.JsonValueKind.False)
+                                && (enabledObj.ValueKind == System.Text.Json.JsonValueKind.True || enabledObj.ValueKind == System.Text.Json.JsonValueKind.False))
                             {
                                 mod.IsSelected = enabledObj.GetBoolean();
                             }

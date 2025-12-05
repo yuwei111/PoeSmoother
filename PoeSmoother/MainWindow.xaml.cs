@@ -1,12 +1,9 @@
-using LibBundle3;
 using LibBundledGGPK3;
 using Microsoft.Win32;
 using PoeSmoother.Models;
 using PoeSmoother.Patches;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;

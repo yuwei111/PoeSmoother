@@ -63,6 +63,10 @@ BoneGroups
                     }
 
                     var newBytes = System.Text.Encoding.Unicode.GetBytes(data);
+                    if (!newBytes.AsSpan().StartsWith(System.Text.Encoding.Unicode.GetPreamble()))
+                    {
+                        newBytes = System.Text.Encoding.Unicode.GetPreamble().Concat(newBytes).ToArray();
+                    }
                     record.Write(newBytes);
                 }
             }

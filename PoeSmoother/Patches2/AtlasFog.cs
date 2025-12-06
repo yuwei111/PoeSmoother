@@ -7,6 +7,39 @@ public class AtlasFog : IPatch
     public string Name => "Atlas Fog Patch";
     public object Description => "Removes fog from the Atlas.";
 
+    private string ReplaceArrayProperty(string data, string propertyName)
+    {
+        string searchPattern = $"\"{propertyName}\":";
+        int index = data.IndexOf(searchPattern);
+        
+        if (index < 0) return data;
+        
+        int bracketStart = data.IndexOf('[', index);
+        if (bracketStart < 0) return data;
+        
+        int bracketCount = 1;
+        int i = bracketStart + 1;
+        
+        while (i < data.Length && bracketCount > 0)
+        {
+            if (data[i] == '[') bracketCount++;
+            else if (data[i] == ']') bracketCount--;
+            i++;
+        }
+        
+        if (bracketCount == 0)
+        {
+            int commaIndex = data.IndexOf(',', i - 1);
+            if (commaIndex > 0 && commaIndex < i + 5)
+            {
+                data = data.Remove(index, commaIndex - index + 1);
+                data = data.Insert(index, $"\"{propertyName}\": [],");
+            }
+        }
+        
+        return data;
+    }
+
     public void Apply(DirectoryNode root)
     {
         // go to metadata/materials/environment/worldmap/worldmap_fogofwar.fxgraph
@@ -34,13 +67,8 @@ public class AtlasFog : IPatch
                                                 var bytes = record.Read();
                                                 string data = System.Text.Encoding.Unicode.GetString(bytes.ToArray());
 
-                                                string nodesPattern = @"""nodes"":\s*\[(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*\],";
-                                                string nodesReplacement = "\"nodes\": [],";
-                                                data = System.Text.RegularExpressions.Regex.Replace(data, nodesPattern, nodesReplacement);
-
-                                                string linksPattern = @"""links"":\s*\[(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*\],";
-                                                string linksReplacement = "\"links\": [],";
-                                                data = System.Text.RegularExpressions.Regex.Replace(data, linksPattern, linksReplacement);
+                                                data = ReplaceArrayProperty(data, "nodes");
+                                                data = ReplaceArrayProperty(data, "links");
 
                                                 var newBytes = System.Text.Encoding.Unicode.GetBytes(data);
                                                 record.Write(newBytes);

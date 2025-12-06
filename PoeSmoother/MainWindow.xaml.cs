@@ -15,7 +15,7 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<PatchViewModel> _patches;
     private readonly ObservableCollection<ColorModsViewModel> _colorMods;
     private string _ggpkPath = string.Empty;
-    private double _cameraZoom = 2.4;
+    private double _cameraZoom = 6.6;
 
     public MainWindow()
     {

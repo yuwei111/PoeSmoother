@@ -34,11 +34,11 @@ public class AtlasFog : IPatch
                                                 var bytes = record.Read();
                                                 string data = System.Text.Encoding.Unicode.GetString(bytes.ToArray());
 
-                                                string nodesPattern = @"""nodes"":\s*\[[\s\S]*?\],";
+                                                string nodesPattern = @"""nodes"":\s*\[(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*\],";
                                                 string nodesReplacement = "\"nodes\": [],";
                                                 data = System.Text.RegularExpressions.Regex.Replace(data, nodesPattern, nodesReplacement);
 
-                                                string linksPattern = @"""links"":\s*\[[\s\S]*?\],";
+                                                string linksPattern = @"""links"":\s*\[(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*\],";
                                                 string linksReplacement = "\"links\": [],";
                                                 data = System.Text.RegularExpressions.Regex.Replace(data, linksPattern, linksReplacement);
 

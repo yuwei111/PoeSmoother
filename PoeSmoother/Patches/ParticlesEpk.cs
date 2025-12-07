@@ -14,7 +14,6 @@ public class ParticlesEpk : IPatch
     public object Description => "Disables all particle effects in the game.";
 
     private readonly string[] extensions = { ".epk" };
-
     private readonly List<string> exceptionList;
 
     public ParticlesEpk()
@@ -34,42 +33,33 @@ public class ParticlesEpk : IPatch
         }
     }
 
-    // ★ 正確：LibBundle3 所有 Node 是 BundleNode
-    private string GetFullPath(FileNode file)
+    // ★ 不依賴 Parent，靠遞迴時傳入的 path 組完整路徑
+    private string BuildPath(string parentPath, string name)
     {
-        var parts = new List<string>();
-        BundleNode? current = file;   // FileNode → BundleNode
+        if (string.IsNullOrEmpty(parentPath))
+            return name.ToLower();
 
-        while (current != null)
-        {
-            if (current is DirectoryNode dir)
-                parts.Add(dir.Name);
-            else if (current is FileNode f)
-                parts.Add(f.Name);
-
-            current = current.Parent; // ★ BundleNode 才有 Parent
-        }
-
-        parts.Reverse();
-        return string.Join("/", parts).ToLower();
+        return (parentPath + "/" + name).ToLower();
     }
 
-    private bool IsException(string filePath)
+    private bool IsException(string fullPath)
     {
-        return exceptionList.Any(ex => filePath.Contains(ex));
+        return exceptionList.Any(ex => fullPath.Contains(ex));
     }
 
-    private void RecursivePatcher(DirectoryNode dir)
+    private void RecursivePatcher(DirectoryNode dir, string currentPath)
     {
-        foreach (var d in dir.Children)
+        string dirPath = BuildPath(currentPath, dir.Name);
+
+        foreach (var node in dir.Children)
         {
-            if (d is DirectoryNode childDir)
+            if (node is DirectoryNode childDir)
             {
-                RecursivePatcher(childDir);
+                RecursivePatcher(childDir, dirPath);
             }
-            else if (d is FileNode file)
+            else if (node is FileNode file)
             {
-                string fullPath = GetFullPath(file);
+                string fullPath = BuildPath(dirPath, file.Name);
 
                 if (IsException(fullPath))
                     continue;
@@ -94,12 +84,13 @@ public class ParticlesEpk : IPatch
 
     public void Apply(DirectoryNode root)
     {
-        foreach (var d in root.Children)
+        foreach (var child in root.Children)
         {
-            if (d is DirectoryNode dir &&
+            if (child is DirectoryNode dir &&
                 dir.Name.Equals("metadata", StringComparison.OrdinalIgnoreCase))
             {
-                RecursivePatcher(dir);
+                // ★ 起始路徑為空
+                RecursivePatcher(dir, "");
             }
         }
     }

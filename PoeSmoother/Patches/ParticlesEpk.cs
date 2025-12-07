@@ -34,11 +34,11 @@ public class ParticlesEpk : IPatch
         }
     }
 
-    // ★ 正確：LibBundle3 使用 BaseNode，不是 Node
+    // ★ 正確：LibBundle3 所有 Node 是 BundleNode
     private string GetFullPath(FileNode file)
     {
         var parts = new List<string>();
-        BaseNode? current = file;
+        BundleNode? current = file;   // FileNode → BundleNode
 
         while (current != null)
         {
@@ -47,7 +47,7 @@ public class ParticlesEpk : IPatch
             else if (current is FileNode f)
                 parts.Add(f.Name);
 
-            current = current.Parent;
+            current = current.Parent; // ★ BundleNode 才有 Parent
         }
 
         parts.Reverse();
@@ -79,7 +79,6 @@ public class ParticlesEpk : IPatch
                     var record = file.Record;
                     byte[] newBytes = Encoding.Unicode.GetBytes("");
 
-                    // 寫 BOM
                     if (!newBytes.AsSpan().StartsWith(Encoding.Unicode.GetPreamble()))
                     {
                         newBytes = Encoding.Unicode.GetPreamble()

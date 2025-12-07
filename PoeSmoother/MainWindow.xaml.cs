@@ -59,6 +59,7 @@ public partial class MainWindow : Window
             new Corpse(),
             new Delirium(),
             new Particles(),
+            new ParticlesEpk(),
             new Effects(),
         };
 
@@ -90,6 +91,7 @@ public partial class MainWindow : Window
             new Light(),
             new Delirium(),
             new Particles(),
+            new ParticlesEpk(),
             new Effects(),
 
         };

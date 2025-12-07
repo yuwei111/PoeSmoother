@@ -180,11 +180,11 @@ public class ColorMods : IPatch
 
     private readonly Dictionary<string, string> _color_conversions = new()
     {
-        { "red", "premiumchatoutline" },
+        { "red", "MapTierHigh" },
         { "green", "quest" },
         { "blue", "divination" },
 		{ "cyan", "ItemRelic_BlueGlow" },
-        { "yellow", "necropolisupside" },
+        { "yellow", "nemesismod" },
         { "pink", "archnemesismodchaospurple" },
     };
     private enum ReadState

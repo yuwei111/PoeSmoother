@@ -2,9 +2,9 @@ using LibBundle3.Nodes;
 
 namespace PoeSmoother.Patches;
 
-public class Particles : IPatch
+public class ParticlesEpk : IPatch
 {
-    public string Name => "Particles Patch";
+    public string Name => "ParticlesEpk Patch";
     public object Description => "Disables all particle effects in the game.";
 
     private readonly string[] extensions = {
@@ -13,7 +13,7 @@ public class Particles : IPatch
 
 	private readonly List<string> exceptionList;
 
-    public Particles()
+    public ParticlesEpk()
     {
         string fileName = "EpkExceptList.txt";
 

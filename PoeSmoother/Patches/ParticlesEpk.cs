@@ -1,3 +1,9 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Collections.Generic;
+
 using LibBundle3.Nodes;
 
 namespace PoeSmoother.Patches;
@@ -28,11 +34,11 @@ public class ParticlesEpk : IPatch
         }
     }
 
-    // ★ 組合完整路徑（解決 FullName 不存在問題）
+    // ★ 正確：LibBundle3 使用 BaseNode，不是 Node
     private string GetFullPath(FileNode file)
     {
         var parts = new List<string>();
-        var current = file as Node;
+        BaseNode? current = file;
 
         while (current != null)
         {
@@ -63,7 +69,7 @@ public class ParticlesEpk : IPatch
             }
             else if (d is FileNode file)
             {
-                string fullPath = GetFullPath(file);  // ★ 改用新的方法
+                string fullPath = GetFullPath(file);
 
                 if (IsException(fullPath))
                     continue;
@@ -73,6 +79,7 @@ public class ParticlesEpk : IPatch
                     var record = file.Record;
                     byte[] newBytes = Encoding.Unicode.GetBytes("");
 
+                    // 寫 BOM
                     if (!newBytes.AsSpan().StartsWith(Encoding.Unicode.GetPreamble()))
                     {
                         newBytes = Encoding.Unicode.GetPreamble()
@@ -90,7 +97,7 @@ public class ParticlesEpk : IPatch
     {
         foreach (var d in root.Children)
         {
-            if (d is DirectoryNode dir && 
+            if (d is DirectoryNode dir &&
                 dir.Name.Equals("metadata", StringComparison.OrdinalIgnoreCase))
             {
                 RecursivePatcher(dir);

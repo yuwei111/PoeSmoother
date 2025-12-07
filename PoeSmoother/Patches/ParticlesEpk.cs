@@ -1,9 +1,4 @@
 using LibBundle3.Nodes;
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PoeSmoother.Patches;
 
@@ -12,11 +7,9 @@ public class ParticlesEpk : IPatch
     public string Name => "ParticlesEpk Patch";
     public object Description => "Disables all particle effects in the game.";
 
-    private readonly string[] extensions = {
-        ".epk",
-    };
+    private readonly string[] extensions = { ".epk" };
 
-	private readonly List<string> exceptionList;
+    private readonly List<string> exceptionList;
 
     public ParticlesEpk()
     {
@@ -31,15 +24,33 @@ public class ParticlesEpk : IPatch
         }
         else
         {
-            // 檔案不存在 → 使用空清單
             exceptionList = new List<string>();
         }
     }
 
+    // ★ 組合完整路徑（解決 FullName 不存在問題）
+    private string GetFullPath(FileNode file)
+    {
+        var parts = new List<string>();
+        var current = file as Node;
+
+        while (current != null)
+        {
+            if (current is DirectoryNode dir)
+                parts.Add(dir.Name);
+            else if (current is FileNode f)
+                parts.Add(f.Name);
+
+            current = current.Parent;
+        }
+
+        parts.Reverse();
+        return string.Join("/", parts).ToLower();
+    }
+
     private bool IsException(string filePath)
     {
-        var lower = filePath.Replace("\\", "/").ToLower();
-        return exceptionList.Any(ex => lower.Contains(ex));
+        return exceptionList.Any(ex => filePath.Contains(ex));
     }
 
     private void RecursivePatcher(DirectoryNode dir)
@@ -52,14 +63,11 @@ public class ParticlesEpk : IPatch
             }
             else if (d is FileNode file)
             {
-                string fullPath = file.FullName?.Replace("\\", "/").ToLower()
-                                  ?? file.Name.ToLower();
+                string fullPath = GetFullPath(file);  // ★ 改用新的方法
 
-                // 命中例外 → 跳過
                 if (IsException(fullPath))
                     continue;
 
-                // 若副檔名符合 → 清空
                 if (extensions.Any(ext => fullPath.EndsWith(ext)))
                 {
                     var record = file.Record;
@@ -82,7 +90,8 @@ public class ParticlesEpk : IPatch
     {
         foreach (var d in root.Children)
         {
-            if (d is DirectoryNode dir && dir.Name.Equals("metadata", StringComparison.OrdinalIgnoreCase))
+            if (d is DirectoryNode dir && 
+                dir.Name.Equals("metadata", StringComparison.OrdinalIgnoreCase))
             {
                 RecursivePatcher(dir);
             }

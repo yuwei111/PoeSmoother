@@ -1,4 +1,9 @@
 using LibBundle3.Nodes;
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text;
 
 namespace PoeSmoother.Patches;
 

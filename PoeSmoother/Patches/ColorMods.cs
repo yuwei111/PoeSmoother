@@ -180,10 +180,10 @@ public class ColorMods : IPatch
 
     private readonly Dictionary<string, string> _color_conversions = new()
     {
-        { "red", "MapTierHigh" },
+        { "red", "red" },
         { "green", "quest" },
         { "blue", "divination" },
-		{ "cyan", "ItemRelic_BlueGlow" },
+		{ "cyan", "cyan" },
         { "yellow", "nemesismod" },
         { "pink", "archnemesismodchaospurple" },
     };

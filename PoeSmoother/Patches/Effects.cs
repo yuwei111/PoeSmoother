@@ -61,44 +61,46 @@ public class Effects : IPatch
         return exceptionList.Any(ex => fullPath.Contains(ex));
     }
 
-    // === 改良版，避免整個檔案被刪光 ===
-    private string RemoveFunctionBlock(string data, string functionName)
-    {
-        // 尋找「獨立一行」的 functionName
-        var pattern = $@"(?m)^\s*{Regex.Escape(functionName)}\s*\{{";
-
-        while (true)
-        {
-            var match = Regex.Match(data, pattern);
-            if (!match.Success)
-                break;
-
-            int funcIndex = match.Index;
-            int braceStart = data.IndexOf('{', funcIndex);
-            if (braceStart < 0) break;
-
-            int braceCount = 1;
-            int i = braceStart + 1;
-
-            while (i < data.Length && braceCount > 0)
-            {
-                if (data[i] == '{') braceCount++;
-                else if (data[i] == '}') braceCount--;
-                i++;
-            }
-
-            if (braceCount == 0)
-            {
-                data = data.Remove(funcIndex, i - funcIndex);
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        return data;
-    }
+    // === 改良版，保留空函式 ===
+	private string ClearFunctionContent(string data, string functionName)
+	{
+		// 找到 "functionName" 開頭（獨立一行）
+		var pattern = $@"(?m)^\s*{Regex.Escape(functionName)}\s*\{{";
+	
+		while (true)
+		{
+			var match = Regex.Match(data, pattern);
+			if (!match.Success)
+				break;
+	
+			int funcIndex = match.Index;
+			int braceStart = data.IndexOf('{', funcIndex);
+			if (braceStart < 0) break;
+	
+			int braceCount = 1;
+			int i = braceStart + 1;
+	
+			while (i < data.Length && braceCount > 0)
+			{
+				if (data[i] == '{') braceCount++;
+				else if (data[i] == '}') braceCount--;
+				i++;
+			}
+	
+			if (braceCount == 0)
+			{
+				// 保留 functionName { }，清空內容
+				string header = data.Substring(funcIndex, braceStart - funcIndex + 1);
+				data = header + "\n}\n" + data.Substring(i);
+			}
+			else
+			{
+				break;
+			}
+		}
+	
+		return data;
+	}
 
     // === 套用例外清單與全 metadata 走訪 ===
     private void RecursivePatcher(DirectoryNode dir, string currentPath)
@@ -128,7 +130,7 @@ public class Effects : IPatch
 
                     foreach (var func in _functions)
                     {
-                        data = RemoveFunctionBlock(data, func);
+                        data = ClearFunctionContent(data, func);
                     }
 
                     var newBytes = Encoding.Unicode.GetBytes(data);

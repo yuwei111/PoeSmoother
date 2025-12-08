@@ -92,7 +92,7 @@ public class ColorMods : IPatch
         new ColorModsOption("map_player_life_and_es_recovery_speed_+%_final", "cyan", true),
 		// maps prefix and 3.24 maps Uber suffix
         new ColorModsOption("map_monster_action_speed_cannot_be_reduced_below_base", "cyan", true),
-        new ColorModsOption("	map_monsters_movement_speed_cannot_be_reduced_below_base", "cyan", true),
+        new ColorModsOption("map_monsters_movement_speed_cannot_be_reduced_below_base", "cyan", true),
 		// 3.24 maps Uber prefix
         new ColorModsOption("map_exarch_traps", "cyan", false),
 		new ColorModsOption("map_uber_sawblades_ambush", "cyan", true),
@@ -121,7 +121,7 @@ public class ColorMods : IPatch
         new ColorModsOption("random_projectile_direction", "cyan", false),
 		// 3.17 Eldritch Altar(異能祭壇): The Searing Exarch
         new ColorModsOption("drain_x_flask_charges_over_time_on_hit_for_6_seconds", "cyan", false),
-		new ColorModsOption("life_mana_es_recovery_rate_+%_per_endurance_charge", "cyan", true),
+		new ColorModsOption("life_mana_es_recovery_rate_+%_per_endurance_charge", "cyan", false),
 		new ColorModsOption("create_enemy_meteor_daemon_on_flask_use_%_chance", "cyan", true),
 
 		// Dangerous Affixes

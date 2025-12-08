@@ -60,40 +60,45 @@ public class Effects : IPatch
         return exceptionList.Any(ex => fullPath.Contains(ex));
     }
 
-    // === 原本的功能：刪除函式區塊 ===
-    private string RemoveFunctionBlock(string data, string functionName)
-    {
-        int index = 0;
-        while (index < data.Length)
-        {
-            int funcIndex = data.IndexOf(functionName, index);
-            if (funcIndex < 0) break;
+    // === 刪除函式區塊 ===
+	private string RemoveFunctionBlock(string data, string functionName)
+	{
+		int searchStart = 0;
+		while (true)
+		{
+			// 確保 functionName 是獨立 token，而不是出現在 Highlight 這種字串裡
+			var pattern = $@"(^|\s){Regex.Escape(functionName)}\s*\{{";
+			var match = Regex.Match(data, pattern, RegexOptions.Multiline);
 
-            int openBraceIndex = data.IndexOf('{', funcIndex + functionName.Length);
-            if (openBraceIndex < 0) break;
+			if (!match.Success)
+				break;
 
-            int braceCount = 1;
-            int i = openBraceIndex + 1;
+			int funcIndex = match.Index;
+			int braceStart = data.IndexOf('{', funcIndex);
+			if (braceStart < 0) break;
 
-            while (i < data.Length && braceCount > 0)
-            {
-                if (data[i] == '{') braceCount++;
-                else if (data[i] == '}') braceCount--;
-                i++;
-            }
+			int braceCount = 1;
+			int i = braceStart + 1;
 
-            if (braceCount == 0)
-            {
-                data = data.Remove(funcIndex, i - funcIndex);
-                index = funcIndex;
-            }
-            else
-            {
-                break;
-            }
-        }
-        return data;
-    }
+			while (i < data.Length && braceCount > 0)
+			{
+				if (data[i] == '{') braceCount++;
+				else if (data[i] == '}') braceCount--;
+				i++;
+			}
+
+			if (braceCount == 0)
+			{
+				data = data.Remove(funcIndex, i - funcIndex);
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return data;
+	}
 
     // === 套用例外清單與全 metadata 走訪 ===
     private void RecursivePatcher(DirectoryNode dir, string currentPath)

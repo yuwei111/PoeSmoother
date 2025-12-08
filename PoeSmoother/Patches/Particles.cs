@@ -1,3 +1,9 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Collections.Generic;
+
 using LibBundle3.Nodes;
 
 namespace PoeSmoother.Patches;
@@ -5,52 +11,92 @@ namespace PoeSmoother.Patches;
 public class Particles : IPatch
 {
     public string Name => "Particles Patch";
-    public object Description => "Disables all particle effects in the game.";
+    public object Description => "Disables all particle effects for pet&trl extension in the game.";
 
     private readonly string[] extensions = {
         ".pet",
         ".trl",
     };
+	private readonly List<string> exceptionList;
 
-    private void RecursivePatcher(DirectoryNode dir)
+	// 讀取例外不修改檔案
+    public ParticlesEpk()
     {
-        foreach (var d in dir.Children)
-        {
-            if (d is DirectoryNode childDir)
-            {
-                RecursivePatcher(childDir);
-            }
-            else if (d is FileNode file)
-            {
+        string fileName = "ParticlesExceptList.txt";
 
-                if (Array.Exists(extensions, ext => file.Name.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+        if (File.Exists(fileName))
+        {
+            exceptionList = File.ReadAllLines(fileName)
+                .Select(l => l.Trim().ToLower())
+                .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith("//"))
+                .ToList();
+        }
+        else
+        {
+            exceptionList = new List<string>();
+        }
+    }
+
+    // 檔案路徑處理，不依賴 Parent，靠遞迴時傳入的 path 組完整路徑
+    private string BuildPath(string parentPath, string name)
+    {
+        if (string.IsNullOrEmpty(parentPath))
+            return name.ToLower();
+
+        return (parentPath + "/" + name).ToLower();
+    }
+
+    private bool IsException(string fullPath)
+    {
+        return exceptionList.Any(ex => fullPath.Contains(ex));
+    }
+
+	// 字串處理，不處理在例外清單的檔案
+    private void RecursivePatcher(DirectoryNode dir, string currentPath)
+    {
+        string dirPath = BuildPath(currentPath, dir.Name);
+
+        foreach (var node in dir.Children)
+        {
+            if (node is DirectoryNode childDir)
+            {
+                RecursivePatcher(childDir, dirPath);
+            }
+            else if (node is FileNode file)
+            {
+                string fullPath = BuildPath(dirPath, file.Name);
+
+                if (IsException(fullPath))
+                    continue;
+
+                if (extensions.Any(ext => fullPath.EndsWith(ext)))
                 {
                     var record = file.Record;
-                    var newBytes = System.Text.Encoding.Unicode.GetBytes("0");
-                    if (!newBytes.AsSpan().StartsWith(System.Text.Encoding.Unicode.GetPreamble()))
+                    byte[] newBytes = Encoding.Unicode.GetBytes("0");
+
+                    if (!newBytes.AsSpan().StartsWith(Encoding.Unicode.GetPreamble()))
                     {
-                        newBytes = System.Text.Encoding.Unicode.GetPreamble().Concat(newBytes).ToArray();
+                        newBytes = Encoding.Unicode.GetPreamble()
+                            .Concat(newBytes)
+                            .ToArray();
                     }
+
                     record.Write(newBytes);
                 }
             }
         }
-    }
+    }	
 
+	// 封包內的應用路徑，metadata下的全部檔案
     public void Apply(DirectoryNode root)
     {
-        // go to metadata/particles/
-        foreach (var d in root.Children)
+        foreach (var child in root.Children)
         {
-            if (d is DirectoryNode dir && dir.Name == "metadata")
+            if (child is DirectoryNode dir &&
+                dir.Name.Equals("metadata", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var d2 in dir.Children)
-                {
-                    if (d2 is DirectoryNode subDir && subDir.Name == "particles")
-                    {
-                        RecursivePatcher(subDir);
-                    }
-                }
+                // ★ 起始路徑為空
+                RecursivePatcher(dir, "");
             }
         }
     }

@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 using LibBundle3.Nodes;
 
@@ -14,9 +13,7 @@ public class Effects : IPatch
     public string Name => "Effects Patch (Experimental)";
     public object Description => "Disables all effects for aoc extension in the game.";
 
-    private readonly string[] extensions = {
-        ".aoc",
-    };
+    private readonly string[] extensions = { ".aoc" };
 
     private readonly string[] _functions = {
         "ParticleEffects",
@@ -61,46 +58,51 @@ public class Effects : IPatch
         return exceptionList.Any(ex => fullPath.Contains(ex));
     }
 
-    // === 改良版，保留空函式 ===
-	private string ClearFunctionContent(string data, string functionName)
-	{
-		// 找到 "functionName" 開頭（獨立一行）
-		var pattern = $@"(?m)^\s*{Regex.Escape(functionName)}\s*\{{";
-	
-		while (true)
-		{
-			var match = Regex.Match(data, pattern);
-			if (!match.Success)
-				break;
-	
-			int funcIndex = match.Index;
-			int braceStart = data.IndexOf('{', funcIndex);
-			if (braceStart < 0) break;
-	
-			int braceCount = 1;
-			int i = braceStart + 1;
-	
-			while (i < data.Length && braceCount > 0)
-			{
-				if (data[i] == '{') braceCount++;
-				else if (data[i] == '}') braceCount--;
-				i++;
-			}
-	
-			if (braceCount == 0)
-			{
-				// 保留 functionName { }，清空內容
-				string header = data.Substring(funcIndex, braceStart - funcIndex + 1);
-				data = header + "\n}\n" + data.Substring(i);
-			}
-			else
-			{
-				break;
-			}
-		}
-	
-		return data;
-	}
+    // 高效清空 function 內容，保留空括號
+    private string ClearFunctionContent(string data, string functionName)
+    {
+        var sb = new StringBuilder(data);
+        int index = 0;
+
+        while (index < sb.Length)
+        {
+            // 找 functionName
+            int funcIndex = sb.ToString().IndexOf(functionName, index, StringComparison.Ordinal);
+            if (funcIndex < 0)
+                break;
+
+            // 確認後面有 {
+            int braceStart = sb.ToString().IndexOf('{', funcIndex + functionName.Length);
+            if (braceStart < 0)
+            {
+                index = funcIndex + functionName.Length;
+                continue;
+            }
+
+            // 找閉合大括號
+            int braceCount = 1;
+            int i = braceStart + 1;
+            while (i < sb.Length && braceCount > 0)
+            {
+                if (sb[i] == '{') braceCount++;
+                else if (sb[i] == '}') braceCount--;
+                i++;
+            }
+
+            if (braceCount == 0)
+            {
+                // 保留 functionName 和 { }，清空中間內容
+                sb.Remove(braceStart + 1, i - braceStart - 2); // -2 保留最後的 }
+                index = i; // 繼續搜尋下一個 function
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return sb.ToString();
+    }
 
     // === 套用例外清單與全 metadata 走訪 ===
     private void RecursivePatcher(DirectoryNode dir, string currentPath)

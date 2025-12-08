@@ -182,9 +182,10 @@ public class ColorMods : IPatch
     {
         { "red", "red" },
         { "green", "quest" },
-        { "blue", "divination" },
-		{ "cyan", "cyan" },
-        { "yellow", "nemesismod" },
+        { "blue", "blue" },
+		{ "cyan", "divination" },
+        { "yellow", "yellow" },
+		// nemesismod
         { "pink", "archnemesismodchaospurple" },
     };
     private enum ReadState

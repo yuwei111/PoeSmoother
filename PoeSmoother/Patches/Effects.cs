@@ -27,6 +27,7 @@ public class Effects : IPatch
 
     private readonly List<string> exceptionList;
 
+	// 讀取例外不修改檔案
     public Effects()
     {
         string fileName = "ParticlesExceptList.txt";
@@ -44,7 +45,7 @@ public class Effects : IPatch
         }
     }
 
-    // === 路徑處理，與 Particles.cs 完全一致 ===
+    // 檔案路徑處理，不依賴 Parent，靠遞迴時傳入的 path 組完整路徑
     private string BuildPath(string parentPath, string name)
     {
         if (string.IsNullOrEmpty(parentPath))
@@ -53,12 +54,14 @@ public class Effects : IPatch
         return (parentPath + "/" + name).ToLower();
     }
 
+    // 判斷例外
     private bool IsException(string fullPath)
     {
-        return exceptionList.Any(ex => fullPath.Contains(ex));
+        string path = fullPath.ToLower();
+        return exceptionList.Any(ex => path.Contains(ex));
     }
 
-    // 高效清空 function 內容，保留空括號
+    // 清空函式內容，保留 {}
     private string ClearFunctionContent(string data, string functionName)
     {
         var sb = new StringBuilder(data);
@@ -66,12 +69,10 @@ public class Effects : IPatch
 
         while (index < sb.Length)
         {
-            // 找 functionName
             int funcIndex = sb.ToString().IndexOf(functionName, index, StringComparison.Ordinal);
             if (funcIndex < 0)
                 break;
 
-            // 確認後面有 {
             int braceStart = sb.ToString().IndexOf('{', funcIndex + functionName.Length);
             if (braceStart < 0)
             {
@@ -79,7 +80,6 @@ public class Effects : IPatch
                 continue;
             }
 
-            // 找閉合大括號
             int braceCount = 1;
             int i = braceStart + 1;
             while (i < sb.Length && braceCount > 0)
@@ -91,9 +91,8 @@ public class Effects : IPatch
 
             if (braceCount == 0)
             {
-                // 保留 functionName 和 { }，清空中間內容
-                sb.Remove(braceStart + 1, i - braceStart - 2); // -2 保留最後的 }
-                index = i; // 繼續搜尋下一個 function
+                sb.Remove(braceStart + 1, i - braceStart - 2);
+                index = i;
             }
             else
             {
@@ -104,7 +103,7 @@ public class Effects : IPatch
         return sb.ToString();
     }
 
-    // === 套用例外清單與全 metadata 走訪 ===
+    // 遞迴處理 metadata
     private void RecursivePatcher(DirectoryNode dir, string currentPath)
     {
         string dirPath = BuildPath(currentPath, dir.Name);
@@ -119,11 +118,10 @@ public class Effects : IPatch
             {
                 string fullPath = BuildPath(dirPath, file.Name);
 
-                // 在例外清單 → 跳過
+                // ★ 先檢查例外，符合就跳過
                 if (IsException(fullPath))
                     continue;
 
-                // 處理 .aoc 檔案
                 if (extensions.Any(ext => fullPath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                 {
                     var record = file.Record;
@@ -142,7 +140,7 @@ public class Effects : IPatch
         }
     }
 
-	// 封包內的應用路徑，metadata下的全部檔案
+    // 套用到 metadata
     public void Apply(DirectoryNode root)
     {
         foreach (var child in root.Children)

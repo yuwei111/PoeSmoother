@@ -87,12 +87,10 @@ public class ColorMods : IPatch
         new ColorModsOption("map_monsters_reflect_%_elemental_damage", "cyan", true),
         new ColorModsOption("map_monsters_movement_speed_+%", "cyan", true),
         new ColorModsOption("map_players_no_regeneration_including_es", "cyan", true),
+		new ColorModsOption("map_monster_action_speed_cannot_be_reduced_below_base", "cyan", true),
 		// maps suffix
         new ColorModsOption("map_monsters_cannot_be_leeched_from", "cyan", false),
         new ColorModsOption("map_player_life_and_es_recovery_speed_+%_final", "cyan", true),
-		// maps prefix and 3.24 maps Uber suffix
-        new ColorModsOption("map_monster_action_speed_cannot_be_reduced_below_base", "cyan", true),
-        new ColorModsOption("map_monsters_movement_speed_cannot_be_reduced_below_base", "cyan", true),
 		// 3.24 maps Uber prefix
         new ColorModsOption("map_exarch_traps", "cyan", false),
 		new ColorModsOption("map_uber_sawblades_ambush", "cyan", true),
@@ -105,6 +103,7 @@ public class ColorMods : IPatch
         new ColorModsOption("map_player_create_enemy_meteor_daemon_on_flask_use_%_chance", "cyan", true),
         new ColorModsOption("map_player_action_speed_+%_per_recent_skill_use", "cyan", true),
         new ColorModsOption("map_packs_have_uber_tentacle_fiends", "cyan", true),
+        new ColorModsOption("map_monsters_movement_speed_cannot_be_reduced_below_base", "cyan", true),
 		// strongboxes
 		new ColorModsOption("chest_display_ice_nova", "cyan", true),
 		// 3.15 探險

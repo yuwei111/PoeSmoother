@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using LibBundle3.Nodes;
 
@@ -60,45 +61,44 @@ public class Effects : IPatch
         return exceptionList.Any(ex => fullPath.Contains(ex));
     }
 
-    // === 刪除函式區塊 ===
-	private string RemoveFunctionBlock(string data, string functionName)
-	{
-		int searchStart = 0;
-		while (true)
-		{
-			// 確保 functionName 是獨立 token，而不是出現在 Highlight 這種字串裡
-			var pattern = $@"(^|\s){Regex.Escape(functionName)}\s*\{{";
-			var match = Regex.Match(data, pattern, RegexOptions.Multiline);
+    // === 改良版，避免整個檔案被刪光 ===
+    private string RemoveFunctionBlock(string data, string functionName)
+    {
+        // 尋找「獨立一行」的 functionName
+        var pattern = $@"(?m)^\s*{Regex.Escape(functionName)}\s*\{{";
 
-			if (!match.Success)
-				break;
+        while (true)
+        {
+            var match = Regex.Match(data, pattern);
+            if (!match.Success)
+                break;
 
-			int funcIndex = match.Index;
-			int braceStart = data.IndexOf('{', funcIndex);
-			if (braceStart < 0) break;
+            int funcIndex = match.Index;
+            int braceStart = data.IndexOf('{', funcIndex);
+            if (braceStart < 0) break;
 
-			int braceCount = 1;
-			int i = braceStart + 1;
+            int braceCount = 1;
+            int i = braceStart + 1;
 
-			while (i < data.Length && braceCount > 0)
-			{
-				if (data[i] == '{') braceCount++;
-				else if (data[i] == '}') braceCount--;
-				i++;
-			}
+            while (i < data.Length && braceCount > 0)
+            {
+                if (data[i] == '{') braceCount++;
+                else if (data[i] == '}') braceCount--;
+                i++;
+            }
 
-			if (braceCount == 0)
-			{
-				data = data.Remove(funcIndex, i - funcIndex);
-			}
-			else
-			{
-				break;
-			}
-		}
+            if (braceCount == 0)
+            {
+                data = data.Remove(funcIndex, i - funcIndex);
+            }
+            else
+            {
+                break;
+            }
+        }
 
-		return data;
-	}
+        return data;
+    }
 
     // === 套用例外清單與全 metadata 走訪 ===
     private void RecursivePatcher(DirectoryNode dir, string currentPath)
@@ -138,9 +138,9 @@ public class Effects : IPatch
         }
     }
 
+	// 封包內的應用路徑，metadata下的全部檔案
     public void Apply(DirectoryNode root)
     {
-        // ★ 改成 metadata 下所有檔案（與 Particles.cs 一樣）
         foreach (var child in root.Children)
         {
             if (child is DirectoryNode dir &&

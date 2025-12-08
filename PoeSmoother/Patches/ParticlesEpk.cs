@@ -11,11 +11,12 @@ namespace PoeSmoother.Patches;
 public class ParticlesEpk : IPatch
 {
     public string Name => "ParticlesEpk Patch";
-    public object Description => "Disables all particle effects in the game.";
+    public object Description => "Disables all particle effects for epk extension the game.";
 
     private readonly string[] extensions = { ".epk" };
     private readonly List<string> exceptionList;
 
+	// 讀取例外不修改檔案
     public ParticlesEpk()
     {
         string fileName = "EpkExceptList.txt";
@@ -33,7 +34,7 @@ public class ParticlesEpk : IPatch
         }
     }
 
-    // ★ 不依賴 Parent，靠遞迴時傳入的 path 組完整路徑
+    // 檔案路徑處理，不依賴 Parent，靠遞迴時傳入的 path 組完整路徑
     private string BuildPath(string parentPath, string name)
     {
         if (string.IsNullOrEmpty(parentPath))
@@ -47,6 +48,7 @@ public class ParticlesEpk : IPatch
         return exceptionList.Any(ex => fullPath.Contains(ex));
     }
 
+	// 字串處理，不處理在例外清單的檔案
     private void RecursivePatcher(DirectoryNode dir, string currentPath)
     {
         string dirPath = BuildPath(currentPath, dir.Name);
@@ -82,6 +84,7 @@ public class ParticlesEpk : IPatch
         }
     }
 
+	// 封包內的應用路徑，metadata下的全部檔案
     public void Apply(DirectoryNode root)
     {
         foreach (var child in root.Children)

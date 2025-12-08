@@ -70,7 +70,7 @@ public partial class MainWindow : Window
             {
                 foreach (var option in colorModsPatch.ColorModsOptions)
                 {
-                    _colorMods.Add(new ColorModsViewModel(option.Copy()));
+                    _colorMods.Add(new ColorModsViewModel(option));
                 }
             }
         }

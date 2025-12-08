@@ -11,7 +11,7 @@ namespace PoeSmoother.Patches;
 public class ParticlesEpk : IPatch
 {
     public string Name => "ParticlesEpk Patch";
-    public object Description => "Disables all particle effects for epk extension the game.";
+    public object Description => "Disables all particle effects for epk extension in the game.";
 
     private readonly string[] extensions = { ".epk" };
     private readonly List<string> exceptionList;

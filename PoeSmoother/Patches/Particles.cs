@@ -20,7 +20,7 @@ public class Particles : IPatch
 	private readonly List<string> exceptionList;
 
 	// 讀取例外不修改檔案
-    public ParticlesEpk()
+    public Particles()
     {
         string fileName = "ParticlesExceptList.txt";
 

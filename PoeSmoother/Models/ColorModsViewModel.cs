@@ -12,7 +12,7 @@ public class ColorModsViewModel : INotifyPropertyChanged
     public ColorModsOption Option { get; }
     public string Name => Option.Name;
 
-    public List<string> AvailableColors { get; } = new() { "red", "green", "blue", "yellow", "pink" };
+    public List<string> AvailableColors { get; } = new() { "red", "green", "blue", "cyan", "yellow", "pink" };
 
     public bool IsSelected
     {

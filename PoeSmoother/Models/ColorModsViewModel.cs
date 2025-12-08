@@ -22,6 +22,7 @@ public class ColorModsViewModel : INotifyPropertyChanged
             if (_isSelected != value)
             {
                 _isSelected = value;
+                Option.IsEnabled = value;  // fixed
                 OnPropertyChanged();
             }
         }
@@ -35,6 +36,7 @@ public class ColorModsViewModel : INotifyPropertyChanged
             if (_selectedColor != value)
             {
                 _selectedColor = value;
+                Option.Color = value;  // fixed
                 OnPropertyChanged();
             }
         }

@@ -183,7 +183,7 @@ public class ColorMods : IPatch
         { "red", "red" },
         { "green", "quest" },
         { "blue", "blue" },
-		{ "cyan", "divination" },
+		{ "cyan", "rgb(0,255,255)" },
         { "yellow", "yellow" },
 		// nemesismod
         { "pink", "archnemesismodchaospurple" },
